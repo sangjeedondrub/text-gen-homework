@@ -1,0 +1,113 @@
+#+TITLE: Text Generation with RNNs
+#+DATE: \today
+#+BABEL: :cache yes
+#+LATEX_CLASS: note
+#+OPTIONS: toc:nil date:nil
+#+CREATOR: Sangjee Dondrub <sangjeedondrub@live.com>
+#+LATEX_HEADER: \subtitle{Homework Assignment by prof.Huaque}
+#+LATEX_HEADER: \doclangselection{en}
+#+LATEX_HEADER: \usemnote{no}
+
+* Github
+
+https://github.com/sangjeedondrub/text-gen-homework
+
+* Environment
+
+#+begin_src sh :exports both :results output
+  pip install --upgrade tensorflow
+#+end_src
+
+#+BEGIN_SRC python :exports both :results output
+  import tensorflow as tf
+
+  print(tf.__version__)
+#+END_SRC
+
+#+RESULTS:
+: 2.1.0
+
+* Data
+
+#+begin_src sh :exports both :results output :dir ../
+  head -n 10 lu-drub-gong-gyan.txt #+end_src
+
+  \bo{དབུ་མའི་ཟབ་གནད་སྙིང་པོར་དྲིལ་བའི་ལེགས་བཤད་ཀླུ་སྒྲུབ་དགོངས་རྒྱན་ཞེས་བྱ་བ་བཞུགས་སོ༎ \\དགེ་འདུན་ཆོས་འཕེལ། \\བདུད་ཀྱི་མཚོན་ཆ་རྩུབ་མོ་དག་ལ་འཇམ་མཉེན་མེ་ཏོག་ལན་དུ་སྦྱིན༎\\ ལྷས་བྱིན་ཁྲོས་པའི་སྒྱོགས་རྡོ་འཕངས་ཚེ་མི་སྨྲའི་བརྟུལ་ཞུགས་དང་དུ་བླངས༎ \\རང་གི་དགྲ་ལ་སྡང་མིག་ཙམ་ཡང་བལྟ་བར་མི་ནུས་ཤཱཀྱའི་སྲས༎\\ འཇིགས་རུང་འཁོར་བའི་དགྲ་ཆེན་སྐྱོབས་པའི་གྲོགས་སུ་ཤེས་ལྡན་སུ་ཡིས་བཀུར༎ \\དགེ་ལེགས་ཞི་བསིལ་བདུད་རྩིའི་འབྱུང་གནས་ཐར་པའི་ལམ༎\\ འདུན་པས་ཕྲ་ཞིབ་མ་ནོར་མཚོན་པ་སྲིད་པའི་མིག།\\ ཆོས་རྗེ་སྨྲ་བའི་སེང་གེ་མཆོག་ནི་འདིའོ་ཞེས༎\\འཕེལ་འགྲིབ་མེད་པར་རིགས་སྨྲ་ཚོགས་ཀྱིས་རྟག་ཏུ་གུས༎\\ གང་གི་མཁྱེན་པའི་ཉི་མའི་དཀྱིལ་འཁོར་ཀུན་ཏུ་བཟང་པོའི་མཁའ་དབྱིངས་ནས༎}
+
+  Total number of lines
+
+  ,#+begin_src sh :exports both :results output :dir ../
+  wc -l lu-drub-gong-gyan.txt
+#+end_src
+
+#+RESULTS:
+: 918 lu-drub-gong-gyan.txt
+
+#+CAPTION: As Character
+| Total number of characters | 81674 |
+| Total vocab                |    65 |
+| Total Patterns             | 81664 |
+
+#+CAPTION: As Syllable
+| Total number of syllables | 21755 |
+| Total vocab               |  1189 |
+| Totoal pattern            | 21752 |
+
+* Models
+
+Character model
+
+#+begin_example
+  _________________________________________________________________
+  Layer (type)                 Output Shape              Param #
+  =================================================================
+  embedding_1 (Embedding)      (64, None, 256)           16640
+  _________________________________________________________________
+  gru_1 (GRU)                  (64, None, 1024)          3938304
+  _________________________________________________________________
+  dense_1 (Dense)              (64, None, 65)            66625
+  =================================================================
+  Total params: 4,021,569
+  Trainable params: 4,021,569
+  Non-trainable params: 0
+#+end_example
+
+Syllable model
+
+#+begin_example
+  _________________________________________________________________
+  Layer (type)                 Output Shape              Param #
+  =================================================================
+  embedding_4 (Embedding)      (1, None, 256)            304384
+  _________________________________________________________________
+  gru_4 (GRU)                  (1, None, 1024)           3938304
+  _________________________________________________________________
+  dense_4 (Dense)              (1, None, 1189)           1218725
+  =================================================================
+  Total params: 5,461,413
+  Trainable params: 5,461,413
+  Non-trainable params: 0
+  _________________________________________________________________
+#+end_example
+
+* Train and evaluate
+
+#+begin_src sh :exports both :results output
+  git clone https://github.com/sangjeedondrub/text-gen-homework --depth=1
+  cd text-gen-homework
+#+end_src
+
+Train character-level model
+
+#+begin_src sh :exports both :results output
+  python text-gen.py
+#+end_src
+
+Train and evaluate syllable-level model
+
+#+begin_src sh :exports both :results output
+  python text-gen.py --use_syllable
+#+end_src
+
+The evaluation results will be saved to =sample.syllable.txt= and
+=sample.char.txt= files
